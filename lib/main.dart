@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:bloc_sm/BLoC/counter_block.dart';
 import 'package:bloc_sm/BLoC/counter_event.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +29,7 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+   // log("build is callred");
     return Scaffold(
       appBar: AppBar(),
       body: Center(
@@ -36,15 +39,21 @@ class MyHomePage extends StatelessWidget {
             const Text(
               'You have pushed the button this many times:',
             ),
-            Text(
-              '${context.watch<CounterBLoc>().state}',
-            ),
+            BlocBuilder <CounterBLoc, int>(builder: (context, state) {
+              log("bloc is callred");
+
+              ///  it rebuild only Text
+              return Text(
+                '${context.watch<CounterBLoc>().state} or  $state', // no need to add full code we can do here only with state
+              );
+            })
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          context.read<CounterBLoc>().add(IncrementCounterEvent()); // it is collection and we are adding data
+          context.read<CounterBLoc>().add(
+              IncrementCounterEvent()); // it is collection and we are adding data
         },
         tooltip: 'Increment',
         child: const Icon(Icons.add),
