@@ -6,7 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(BlocProvider(
+          create: (context) => CounterBLoc(),
+          child: MyApp(),
+        ));
 }
 
 class MyApp extends StatelessWidget {
@@ -19,17 +22,15 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        home: BlocProvider(
-          create: (context) => CounterBLoc(),
-          child: MyHomePage(),
-        ));
+        home:  MyHomePage(),
+        );
   }
 }
 
 class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-   // log("build is callred");
+    // log("build is callred");
     return Scaffold(
       appBar: AppBar(),
       body: Center(
@@ -39,14 +40,36 @@ class MyHomePage extends StatelessWidget {
             const Text(
               'You have pushed the button this many times:',
             ),
-            BlocBuilder <CounterBLoc, int>(builder: (context, state) {
+            BlocBuilder<CounterBLoc, int>(builder: (context, state) {
               log("bloc is callred");
 
               ///  it rebuild only Text
               return Text(
                 '${context.watch<CounterBLoc>().state} or  $state', // no need to add full code we can do here only with state
               );
-            })
+            }),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return Scaffold(
+                      appBar: AppBar(
+                        title: Text("Second page"),
+                      ),
+                      body: Column(
+                        children: [
+                          IconButton(
+                              onPressed: () {
+                                context
+                                    .read<CounterBLoc>()
+                                    .add(DecrementCounterEvent());
+                              },
+                              icon: Icon(Icons.cut))
+                        ],
+                      ),
+                    );
+                  }));
+                },
+                child: Text("clieck here"))
           ],
         ),
       ),
