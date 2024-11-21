@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:bloc_sm/BLoC/counter_block.dart';
 import 'package:bloc_sm/BLoC/counter_event.dart';
+import 'package:bloc_sm/BLoC/counter_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -40,12 +41,12 @@ class MyHomePage extends StatelessWidget {
             const Text(
               'You have pushed the button this many times:',
             ),
-            BlocBuilder<CounterBLoc, int>(builder: (context, state) {
+            BlocBuilder<CounterBLoc, CounterState>(builder: (context, state) {
               log("bloc is callred");
 
               ///  it rebuild only Text
               return Text(
-                '${context.watch<CounterBLoc>().state} or  $state', // no need to add full code we can do here only with state
+                '${context.watch<CounterBLoc>().state.count} or  ${state.count}', // no need to add full code we can do here only with state
               );
             }),
             ElevatedButton(
