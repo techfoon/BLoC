@@ -30,9 +30,10 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatelessWidget {
-  List<Map<String, dynamic>> pdata = [
-    {"name": "Peeyush", "class": "BSC-CS"}
-  ];
+
+
+  TextEditingController nameController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     // log("build is callred");
@@ -55,10 +56,19 @@ class MyHomePage extends StatelessWidget {
                     ? ListView.builder(
                         itemBuilder: (context, index) {
                           return ListTile(
-                              title: Text(state.mData[index]['name']),
-                              subtitle: Text(state.mData[index]
-                                  ['class']) //state.mData[index]['class']
-                              );
+                            leading: Text("$index"),
+                            title: Text(state.mData[index]['name']),
+                            subtitle: Text(state.mData[index]['descrtion']),
+
+                            trailing: IconButton(
+                                onPressed: () {
+                                  context
+                                      .read<ListBLoc>()
+                                      .add(RemoveMapEvent(passingIndex: index));
+                                },
+                                icon: Icon(Icons
+                                    .delete)), //state.mData[index]['class']
+                          );
                         },
                         itemCount: state.mData.length)
                     : Text("there is no value in map");
@@ -79,7 +89,7 @@ class MyHomePage extends StatelessWidget {
                         children: [
                           IconButton(
                               onPressed: () {
-                                context.read<ListBLoc>().add(RemoveMapEvent());
+                                // context.read<ListBLoc>().add();
                               },
                               icon: Icon(Icons.cut))
                         ],
@@ -93,8 +103,56 @@ class MyHomePage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          context.read<ListBLoc>().add(AdditionMapEvent(
-              passingData: pdata)); // it is collection and we are adding data
+          showModalBottomSheet(
+              context: context,
+              builder: (BuildContext) {
+                return Padding(
+                  padding: const EdgeInsets.all(18.0),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: 50,
+                      ),
+                      TextField(
+                        controller: nameController,
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            label: Text("Enter Your Name")),
+                      ),
+                      SizedBox(
+                        height: 50,
+                      ),
+                      TextField(
+                        controller: descriptionController,
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            label: Text("Enter Your Description")),
+                      ),
+                      SizedBox(
+                        height: 50,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ElevatedButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: Text("cancel")),
+                          ElevatedButton(
+                              onPressed: () {
+                                context.read<ListBLoc>().add(AdditionMapEvent(
+                                    title: nameController.text,
+                                    description: descriptionController.text));
+                              },
+                              child: Text("ADD")),
+                        ],
+                      )
+                    ],
+                  ),
+                );
+              });
+          // it is collection and we are adding data
         },
         tooltip: 'Increment',
         child: const Icon(Icons.add),
