@@ -13,10 +13,17 @@ class AdditionMapEvent extends ListEvent {
 
 class FetchMapEvent extends ListEvent {}
 
-class UpdateMapEvent extends ListEvent {}
+class UpdateMapEvent extends ListEvent {
+
+ String title, description;
+   int passingIndex;
+
+  UpdateMapEvent ({required this.passingIndex, required this.title, required this.description});
+}
 
 class RemoveMapEvent extends ListEvent {
   int passingIndex;
 
   RemoveMapEvent({required this.passingIndex});
 }
+

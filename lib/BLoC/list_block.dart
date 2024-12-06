@@ -6,8 +6,10 @@ class ListBLoc extends Bloc<ListEvent, ListState> {
   ListBLoc() : super(ListState(mData: [])) {
     on<AdditionMapEvent>(
       (event, emit) {
-        final List<Map<String, dynamic>> addiontiondata = [{"name": event.title, "descrtion": event.description}];
-        emit(ListState(mData: [...state.mData, ...addiontiondata ]));
+        final List<Map<String, dynamic>> addiontiondata = [
+          {"name": event.title, "descrtion": event.description}
+        ];
+        emit(ListState(mData: [...state.mData, ...addiontiondata]));
       },
     );
 
@@ -23,5 +25,16 @@ class ListBLoc extends Bloc<ListEvent, ListState> {
         // emit(ListState(mData: [state.mData.removeAt(event.passingIndex)]));
       },
     );
+
+    on<UpdateMapEvent>((event, emit) {
+      List<Map<String, dynamic>> updateData = state.mData;
+
+      updateData[event.passingIndex] = {
+        "name": event.title,
+        "descrtion": event.description
+      };
+
+      emit(ListState(mData: updateData));
+    });
   } //initial state
 }

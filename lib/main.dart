@@ -30,10 +30,11 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatelessWidget {
-
-
   TextEditingController nameController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
+
+  TextEditingController updatenameController = TextEditingController();
+  TextEditingController updatedescriptionController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     // log("build is callred");
@@ -66,8 +67,66 @@ class MyHomePage extends StatelessWidget {
                                       .read<ListBLoc>()
                                       .add(RemoveMapEvent(passingIndex: index));
                                 },
-                                icon: Icon(Icons
-                                    .delete)), //state.mData[index]['class']
+                                icon: Icon(Icons.delete)),
+
+                            onTap: () {
+                              updatenameController.text =
+                                  state.mData[index]['name'];
+                              updatedescriptionController.text =
+                                  state.mData[index]['descrtion'];
+                              showModalBottomSheet(
+                                  context: context,
+                                  builder: (BuildContext) {
+                                    return Padding(
+                                      padding: const EdgeInsets.all(18.0),
+                                      child: Column(
+                                        children: [
+                                          SizedBox(
+                                            height: 50,
+                                          ),
+                                          TextField(
+                                            controller: updatenameController,
+                                            decoration: InputDecoration(
+                                                border: OutlineInputBorder(),
+                                                label:
+                                                    Text("update Your Name")),
+                                          ),
+                                          SizedBox(
+                                            height: 50,
+                                          ),
+                                          TextField(
+                                            controller: descriptionController,
+                                            decoration: InputDecoration(
+                                                border: OutlineInputBorder(),
+                                                label: Text(
+                                                    "update Your Description")),
+                                          ),
+                                          SizedBox(
+                                            height: 50,
+                                          ),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              ElevatedButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child: Text("cancel")),
+                                              ElevatedButton(
+                                                  onPressed: () {
+                                                    context
+                                                        .read<ListBLoc>()
+                                                        .add(UpdateMapEvent(passingIndex: index, title: updatenameController.text, description: updatedescriptionController.text));
+                                                  },
+                                                  child: Text("ADD")),
+                                            ],
+                                          )
+                                        ],
+                                      ),
+                                    );
+                                  });
+                            }, //state.mData[index]['class']
                           );
                         },
                         itemCount: state.mData.length)
@@ -78,26 +137,6 @@ class MyHomePage extends StatelessWidget {
                 );*/
               }),
             ),
-            ElevatedButton(
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return Scaffold(
-                      appBar: AppBar(
-                        title: Text("Second page"),
-                      ),
-                      body: Column(
-                        children: [
-                          IconButton(
-                              onPressed: () {
-                                // context.read<ListBLoc>().add();
-                              },
-                              icon: Icon(Icons.cut))
-                        ],
-                      ),
-                    );
-                  }));
-                },
-                child: Text("clieck here"))
           ],
         ),
       ),
