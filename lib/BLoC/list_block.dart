@@ -1,40 +1,61 @@
 import 'package:bloc_sm/BLoC/list_event.dart';
 import 'package:bloc_sm/BLoC/list_state.dart';
+import 'package:bloc_sm/local/db_helper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class ListBLoc extends Bloc<ListEvent, ListState> {
-  ListBLoc() : super(ListState(mData: [])) {
+class NotesBloc extends Bloc<ListEvent, NotesState> {
+  DBHelper db;
+  NotesBloc({required this.db}) : super(NotesInitaialState()) {
     on<AdditionMapEvent>(
-      (event, emit) {
-        final List<Map<String, dynamic>> addiontiondata = [
-          {"name": event.title, "descrtion": event.description}
-        ];
-        emit(ListState(mData: [...state.mData, ...addiontiondata]));
+      (event, emit) async {
+        emit(NotesLoadingState());
+
+        bool check =
+            await db.addNote(title: event.title, desc: event.description);
+
+        if (check) {
+          var AllNotes = await db.getAllNotes();
+
+          emit(NotesLoadedState(stateArrNotes: AllNotes));
+        } else {
+          emit(NotesErroState(errMsg: " Notes Not ADDED"));
+        }
+
+        //  emit(NotesState( stateArrNotes: [...state.stateArrNotes, ...addiontiondata]));
       },
     );
 
-    on<RemoveMapEvent>(
+    on<FetchMapEvent>((event, emit) async {
+      emit(NotesLoadingState());
+
+      List<Map<String, dynamic>> AllNotes = await db.getAllNotes();
+
+      emit(NotesLoadedState(stateArrNotes: AllNotes));
+    });
+/*
+ on<RemoveMapEvent>(
       (event, emit) {
 // Create a new list without mutating the existing one
-        final updatedData = List<Map<String, dynamic>>.from(state.mData);
+        final updatedData =
+            List<Map<String, dynamic>>.from(state.stateArrNotes);
         updatedData.removeAt(event.passingIndex);
 
         // Emit the updated state
-        emit(ListState(mData: updatedData));
+        emit(NotesState(stateArrNotes: updatedData));
 
-        // emit(ListState(mData: [state.mData.removeAt(event.passingIndex)]));
+        // emit(NotesState( stateArrNotes: [state. stateArrNotes.removeAt(event.passingIndex)]));
       },
     );
 
     on<UpdateMapEvent>((event, emit) {
-      List<Map<String, dynamic>> updateData = state.mData;
+      List<Map<String, dynamic>> updateData = state.stateArrNotes;
 
       updateData[event.passingIndex] = {
         "name": event.title,
         "descrtion": event.description
       };
 
-      emit(ListState(mData: updateData));
-    });
+      emit(NotesState(stateArrNotes: updateData));
+    });*/
   } //initial state
 }

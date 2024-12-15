@@ -3,19 +3,31 @@ import 'dart:developer';
 import 'package:bloc_sm/BLoC/list_block.dart';
 import 'package:bloc_sm/BLoC/list_event.dart';
 import 'package:bloc_sm/BLoC/list_state.dart';
+import 'package:bloc_sm/local/db_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() {
   runApp(BlocProvider(
-    create: (context) => ListBLoc(),
+    create: (context) => NotesBloc(db: DBHelper.getInstance),
     child: MyApp(),
   ));
 }
 
-class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+class MyApp extends StatefulWidget {
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
 
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    context.read<NotesBloc>().add(FetchMapEvent());
+  }
+
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -49,91 +61,114 @@ class MyHomePage extends StatelessWidget {
             ),
             Expanded(
               child:
-                  BlocBuilder<ListBLoc, ListState>(builder: (context, state) {
+                  BlocBuilder<NotesBloc, NotesState>(builder: (context, state) {
                 log("blocBuilder is called is callred");
 
                 ///  it rebuild only Text
-                return state.mData.isNotEmpty
-                    ? ListView.builder(
-                        itemBuilder: (context, index) {
-                          return ListTile(
-                            leading: Text("$index"),
-                            title: Text(state.mData[index]['name']),
-                            subtitle: Text(state.mData[index]['descrtion']),
+                ///
+                if (state is NotesLoadingState) {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else if (state is NotesErroState) {
+                  return Center(
+                    child: Text(state.errMsg),
+                  );
+                } else if (state is NotesLoadedState) {
+                  return state.stateArrNotes.isNotEmpty
+                      ? ListView.builder(
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              leading: Text("$index"),
+                              title: Text(state.stateArrNotes[index]['title']),
+                              subtitle: Text(
+                                  state.stateArrNotes[index]['description']),
 
-                            trailing: IconButton(
-                                onPressed: () {
-                                  context
-                                      .read<ListBLoc>()
-                                      .add(RemoveMapEvent(passingIndex: index));
-                                },
-                                icon: Icon(Icons.delete)),
+                              trailing: IconButton(
+                                  onPressed: () {
+                                    context.read<NotesBloc>().add(
+                                        RemoveMapEvent(passingIndex: index));
+                                  },
+                                  icon: Icon(Icons.delete)),
 
-                            onTap: () {
-                              updatenameController.text =
-                                  state.mData[index]['name'];
-                              updatedescriptionController.text =
-                                  state.mData[index]['descrtion'];
-                              showModalBottomSheet(
-                                  context: context,
-                                  builder: (BuildContext) {
-                                    return Padding(
-                                      padding: const EdgeInsets.all(18.0),
-                                      child: Column(
-                                        children: [
-                                          SizedBox(
-                                            height: 50,
-                                          ),
-                                          TextField(
-                                            controller: updatenameController,
-                                            decoration: InputDecoration(
-                                                border: OutlineInputBorder(),
-                                                label:
-                                                    Text("update Your Name")),
-                                          ),
-                                          SizedBox(
-                                            height: 50,
-                                          ),
-                                          TextField(
-                                            controller: descriptionController,
-                                            decoration: InputDecoration(
-                                                border: OutlineInputBorder(),
-                                                label: Text(
-                                                    "update Your Description")),
-                                          ),
-                                          SizedBox(
-                                            height: 50,
-                                          ),
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceEvenly,
-                                            children: [
-                                              ElevatedButton(
-                                                  onPressed: () {
-                                                    Navigator.pop(context);
-                                                  },
-                                                  child: Text("cancel")),
-                                              ElevatedButton(
-                                                  onPressed: () {
-                                                    context
-                                                        .read<ListBLoc>()
-                                                        .add(UpdateMapEvent(passingIndex: index, title: updatenameController.text, description: updatedescriptionController.text));
-                                                  },
-                                                  child: Text("ADD")),
-                                            ],
-                                          )
-                                        ],
-                                      ),
-                                    );
-                                  });
-                            }, //state.mData[index]['class']
-                          );
-                        },
-                        itemCount: state.mData.length)
-                    : Text("there is no value in map");
+                              onTap: () {
+                                updatenameController.text =
+                                    state.stateArrNotes[index]['name'];
+                                updatedescriptionController.text =
+                                    state.stateArrNotes[index]['descrtion'];
+                                showModalBottomSheet(
+                                    context: context,
+                                    builder: (BuildContext) {
+                                      return Padding(
+                                        padding: const EdgeInsets.all(18.0),
+                                        child: Column(
+                                          children: [
+                                            SizedBox(
+                                              height: 50,
+                                            ),
+                                            TextField(
+                                              controller: updatenameController,
+                                              decoration: InputDecoration(
+                                                  border: OutlineInputBorder(),
+                                                  label:
+                                                      Text("update Your Name")),
+                                            ),
+                                            SizedBox(
+                                              height: 50,
+                                            ),
+                                            TextField(
+                                              controller: descriptionController,
+                                              decoration: InputDecoration(
+                                                  border: OutlineInputBorder(),
+                                                  label: Text(
+                                                      "update Your Description")),
+                                            ),
+                                            SizedBox(
+                                              height: 50,
+                                            ),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceEvenly,
+                                              children: [
+                                                ElevatedButton(
+                                                    onPressed: () {
+                                                      Navigator.pop(context);
+                                                    },
+                                                    child: Text("cancel")),
+                                                ElevatedButton(
+                                                    onPressed: () {
+                                                      context
+                                                          .read<NotesBloc>()
+                                                          .add(UpdateMapEvent(
+                                                              passingIndex:
+                                                                  index,
+                                                              title:
+                                                                  updatenameController
+                                                                      .text,
+                                                              description:
+                                                                  updatedescriptionController
+                                                                      .text));
+                                                    },
+                                                    child: Text("ADD")),
+                                              ],
+                                            )
+                                          ],
+                                        ),
+                                      );
+                                    });
+                              }, //state.stateArrNotes[index]['class']
+                            );
+                          },
+                          itemCount: state.stateArrNotes.length)
+                      : Text("there is no value in map");
+                } else {
+                  return Container(
+                    child: Text("Operation Failed"),
+                  );
+                }
 
                 /* Text(
-                  '${context.watch<ListBLoc>().state.count} or  ${state.count}', // no need to add full code we can do here only with state
+                  '${context.watch<NotesBloc>().state.count} or  ${state.count}', // no need to add full code we can do here only with state
                 );*/
               }),
             ),
@@ -180,7 +215,7 @@ class MyHomePage extends StatelessWidget {
                               child: Text("cancel")),
                           ElevatedButton(
                               onPressed: () {
-                                context.read<ListBLoc>().add(AdditionMapEvent(
+                                context.read<NotesBloc>().add(AdditionMapEvent(
                                     title: nameController.text,
                                     description: descriptionController.text));
                               },
